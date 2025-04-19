@@ -1,7 +1,7 @@
 import React from 'react';
 import './Filter.css'
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleAll, toggleTransfer} from "../FilterSlice.js"
+import { toggleAll, toggleTransfer} from "../Store/FilterSlice.js"
 
 export default function Filter() {
         const dispatch = useDispatch();

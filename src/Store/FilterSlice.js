@@ -26,23 +26,20 @@ const filtersSlice = createSlice({
 
             const key = action.payload
 
-            if (state.transfers[key]) {    //убираем галочку при повторном нажатии
+            if (state.transfers[key]) {
                 state.transfers[key] = false
                 state.all = false
                 return
             }
 
-            state.transfers[key] = true //если жмем на конкретную кнопку
+            state.transfers[key] = true
 
             if (state.transfers[0] && state.transfers[1] && state.transfers[2] && state.transfers[3]) {
                 state.all = true
-                for (let key in state.transfers) {
-                    state.transfers[key] = false
-                }
                 return
             }
 
-            state.all = false //"всё" выключается
+            state.all = false
         }
     }
 })
