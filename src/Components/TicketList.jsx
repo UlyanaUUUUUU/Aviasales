@@ -1,15 +1,17 @@
-import React, {useEffect} from 'react';
-import Tabs from './Tabs';
+import React, {useEffect, useMemo, useState} from 'react';
 import './TicketList.css'
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchSearchId, fetchTickets} from '../Store/FetchData.js'
 import {add, format} from 'date-fns';
+import {Flex, Progress} from 'antd';
 
 
 export default function TicketList() {
     const dispatch = useDispatch();
     const {searchId, stop, tickets, status} = useSelector(state => state.tickets);
-    const [visibleTickets, setVisibleTickets] = React.useState(5);
+    const filters = useSelector(state => state.filters);
+    const [visibleTickets, setVisibleTickets] = useState(5);
+    const [loadProgress, setLoadProgress] = useState(0);
 
     useEffect(() => {
         dispatch(fetchSearchId());
@@ -18,9 +20,15 @@ export default function TicketList() {
     useEffect(() => {
         if (searchId && !stop) {
             const loadTickets = async () => {
+                let requestCount = 0
+                const totalRequestCount = 13
+
                 while (true) {
                     const result = await dispatch(fetchTickets(searchId));
                     if (fetchTickets.fulfilled.match(result)) {
+                        requestCount += 1;
+                        const percent = Math.min((requestCount / totalRequestCount) * 100, 99);
+                        setLoadProgress(percent);
                         if (result.payload.stop) break;
                     }
                 }
@@ -32,14 +40,64 @@ export default function TicketList() {
         }
     }, [dispatch, searchId, stop]);
 
-    if (status === 'loading') console.log('загрузка')
+
+    const filteredTickets = useMemo(() => {
+        if (!tickets || !filters) return tickets;
+
+        let result = tickets;
+
+        if (!filters.all) {
+            const allowedStops = Object.entries(filters.transfers)
+                .filter(([_, isChecked]) => isChecked)
+                .map(([stops]) => Number(stops));
+
+            result = tickets.filter(ticket =>
+                ticket.segments.every(segment =>
+                    Array.isArray(segment.stops) &&
+                    allowedStops.includes(segment.stops.length)))
+        }
+
+        result = [...result];
+
+        switch (filters.sortBy) {
+            case 'cheapest':
+                result.sort((a, b) => a.price - b.price)
+                break;
+            case 'fastest':
+               result.sort((a,b) => {
+                   const durationA = a.segments.reduce((sum, s) => sum + s.duration, 0)
+                   const durationB = b.segments.reduce((sum, s) => sum + s.duration, 0)
+                   return durationA - durationB
+               })
+                break;
+            case 'optimal':
+                result.sort((a, b) => {
+                    const aScore = a.price + 0.5 * a.segments.reduce((sum, s) => sum + s.duration, 0);
+                    const bScore = b.price + 0.5 * b.segments.reduce((sum, s) => sum + s.duration, 0);
+                    return aScore - bScore;
+                });
+                break;
+        }
+
+        return result
+    }, [tickets, filters]);
 
     const handleShowMore = () => {
         setVisibleTickets(prev => prev + 5)
     }
 
 
-    const ticket = tickets.slice(0, visibleTickets).map((ticket, i) => {
+    if (tickets.length < 5) {
+        return (
+
+                <div className='container'>
+                    <span className='loader'></span>
+                </div>
+
+        )
+    }
+
+    const ticket = filteredTickets.slice(0, visibleTickets).map((ticket, i) => {
 
             const transfers = (arr) => {
                 if (arr.length === 1) {
@@ -65,7 +123,6 @@ export default function TicketList() {
 
                 return `${format(departure, 'HH:mm')}-${format(arrival, 'HH:mm')}`;
             }
-
 
             return (
                 <li key={i} className="ticket">
@@ -109,11 +166,14 @@ export default function TicketList() {
 
     return (
         <div>
-            <Tabs/>
+            {status === 'loading' ?
+                (<Flex vertical gap="small">
+                <Progress strokeLinecap="butt" percent={Math.round(loadProgress)} status='active'/>
+            </Flex>) : null}
             <ul className="tickets">
                 {ticket}
             </ul>
-            {visibleTickets < tickets.length && (
+            {visibleTickets < filteredTickets.length && (
                 <button className='showMore' onClick={handleShowMore}> Показать еще 5 билетов! </button>
             )}
         </div>

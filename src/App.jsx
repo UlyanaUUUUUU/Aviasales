@@ -3,6 +3,7 @@ import logo from './Images/Logo.svg'
 import './App.css'
 import Filter from './Components/Filter.jsx'
 import TicketList from "./Components/TicketList.jsx";
+import Tabs from "./Components/Tabs.jsx"
 
 function App() {
 
@@ -14,7 +15,10 @@ function App() {
             </header>
             <section className="aviasales">
                 <Filter/>
-                <TicketList/>
+                <div>
+                    <Tabs/>
+                    <TicketList/>
+                </div>
             </section>
         </>
     )

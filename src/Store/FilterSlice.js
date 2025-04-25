@@ -1,13 +1,14 @@
 import {createSlice} from "@reduxjs/toolkit";
 
 const initialState = {
-    all: false,
+    all: true,
     transfers: {
-        0: false,
-        1: false,
-        2: false,
-        3: false,
-    }
+        0: true,
+        1: true,
+        2: true,
+        3: true,
+    },
+    sortBy: 'cheapest'
 }
 
 const filtersSlice = createSlice({
@@ -40,9 +41,14 @@ const filtersSlice = createSlice({
             }
 
             state.all = false
+        },
+
+        setSortBy(state, action) {
+            state.sortBy = action.payload
+            console.log(state.sortBy)
         }
     }
 })
 
-export const { toggleAll, toggleTransfer} = filtersSlice.actions;
+export const { toggleAll, toggleTransfer, setSortBy} = filtersSlice.actions;
 export default filtersSlice.reducer;

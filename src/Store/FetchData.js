@@ -1,4 +1,3 @@
-////pics.avs.io/99/36/{IATA_CODE_HERE}.png
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 
 
