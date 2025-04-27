@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './Images/Logo.svg';
+import logo from '/Images/Logo.svg';
 import './App.scss';
 import Filter from './Components/Filter.jsx';
 import TicketList from './Components/TicketList.jsx';
