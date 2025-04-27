@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './TicketList.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSearchId, fetchTickets } from '../Store/FetchData.js';
+import { fetchSearchThunk, fetchTicketsThunk } from '../Store/FetchData.js';
 import { add, format } from 'date-fns';
 import { Flex, Progress } from 'antd';
 
@@ -13,7 +13,7 @@ export default function TicketList() {
   const [loadProgress, setLoadProgress] = useState(0);
 
   useEffect(() => {
-    dispatch(fetchSearchId());
+    dispatch(fetchSearchThunk());
   }, [dispatch]);
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export default function TicketList() {
 
         while (true) {
           try {
-            const result = await dispatch(fetchTickets(searchId));
-            if (fetchTickets.fulfilled.match(result)) {
+            const result = await dispatch(fetchTicketsThunk(searchId));
+            if (fetchTicketsThunk.fulfilled.match(result)) {
               requestCount += 1;
               const percent = Math.min((requestCount / totalRequestCount) * 100, 99);
               setLoadProgress(percent);
