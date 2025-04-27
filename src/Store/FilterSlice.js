@@ -44,7 +44,6 @@ const filtersSlice = createSlice({
 
     setSortBy(state, action) {
       state.sortBy = action.payload;
-      console.log(state.sortBy);
     },
   },
 });

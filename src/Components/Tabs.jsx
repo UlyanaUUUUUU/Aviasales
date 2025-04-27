@@ -27,7 +27,6 @@ export default function Tabs() {
               onClick={() => {
                 setActiveTab(tab.id);
                 dispatch(setSortBy(tab.sortBy));
-                console.log(tab.sortBy, 'Это Tabs');
               }}
             >
               {tab.label}

@@ -17,27 +17,33 @@ export default function TicketList() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (searchId && !stop) {
+    if (searchId) {
       const loadTickets = async () => {
         let requestCount = 0;
         const totalRequestCount = 13;
 
         while (true) {
-          const result = await dispatch(fetchTickets(searchId));
-          if (fetchTickets.fulfilled.match(result)) {
-            requestCount += 1;
-            const percent = Math.min((requestCount / totalRequestCount) * 100, 99);
-            setLoadProgress(percent);
-            if (result.payload.stop) break;
+          try {
+            const result = await dispatch(fetchTickets(searchId));
+            if (fetchTickets.fulfilled.match(result)) {
+              requestCount += 1;
+              const percent = Math.min((requestCount / totalRequestCount) * 100, 99);
+              setLoadProgress(percent);
+
+              if (result.payload.stop) {
+                break;
+              }
+            }
+          } catch (err) {
+            console.error("Ошибка при загрузке данных: ", err);
           }
         }
       };
+
       loadTickets();
     }
-    if (searchId && stop) {
-      console.log(tickets);
-    }
-  }, [dispatch, searchId, stop, tickets]);
+  }, [dispatch, searchId, stop]);
+
 
   const filteredTickets = useMemo(() => {
     if (!tickets || !filters) return tickets;

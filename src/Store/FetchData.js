@@ -17,7 +17,7 @@ export const fetchTickets = createAsyncThunk('tickets/fetchTickets', async (sear
     const data = await res.json();
     return data;
   } catch (err) {
-    return thunkAPI.rejectWithValue(err);
+    return thunkAPI.rejectWithValue(err.message);
   }
 });
 
